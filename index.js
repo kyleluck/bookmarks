@@ -32,7 +32,7 @@ app.post('/save', function(req, res) {
         return;
       }
       if (bookmark) {
-        res.status(400).send({ "status": "fail", "message": "There is already a bookmark saved with this link : " + err.message });
+        res.status(400).send({ "status": "fail", "message": "There is already a bookmark saved with this link" });
         return;
       } else {
         // no duplicate found, save the new bookmark
@@ -61,7 +61,13 @@ app.get('/bookmarks', function(req, res) {
       res.status(400).send({ "status": "fail", "message": "There was an error looking up bookmarks: " + err.message });
       return;
     }
-
+    if (bookmarks) {
+      // bookmarks were found
+      res.status(200).send({ "status": "ok", "message": bookmarks });
+    } else {
+      // no bookmarks found
+      res.status(400).send({ "status": "fail", "message": "You don't have any saved bookmarks" });
+    }
   });
 });
 
