@@ -1,0 +1,11 @@
+{
+  "name": "bookmarks",
+  "version": "1.0.0",
+  "description": "An app to organize bookmarks",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kyle Luck",
+  "license": "ISC"
+}
