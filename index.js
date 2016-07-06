@@ -64,3 +64,7 @@ app.get('/bookmarks', function(req, res) {
 
   });
 });
+
+app.listen('8000', function() {
+  console.log('listening on 8000...');
+});
