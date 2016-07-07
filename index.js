@@ -49,19 +49,18 @@ app.post('/save', function(req, res) {
 
 // view saved bookmarks
 app.get('/bookmarks', function(req, res) {
-  Bookmark.find({}, function(err, bookmarks) {
-    if (err) {
-      res.status(400).send({ "status": "fail", "message": "There was an error looking up bookmarks: " + err.message });
-      return;
-    }
-    if (bookmarks) {
-      // bookmarks were found
+  Bookmark.find({})
+    .then(function(bookmarks) {
+      if (!bookmarks) {
+        //no bookmarks saved
+        throw new Error("You do not have any saved bookmarks.");
+      }
+      // we have saved bookmarks
       res.status(200).send({ "status": "ok", "message": bookmarks });
-    } else {
-      // no bookmarks found
-      res.status(400).send({ "status": "fail", "message": "You don't have any saved bookmarks" });
-    }
-  });
+    })
+    .catch(function(err) {
+      res.status(400).send({ "status": "fail", "message": "There was an error: " + err.message });
+    });
 });
 
 app.listen('8000', function() {
