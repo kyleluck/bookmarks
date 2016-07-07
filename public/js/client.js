@@ -5,8 +5,8 @@ var bookmarkApp = angular.module('bookmarkApp', ['ngRoute']);
 bookmarkApp.config(function($routeProvider) {
   $routeProvider
     .when('/', {
-      controller: 'MainController',
-      templateUrl: 'main.html'
+      controller: 'DisplayController',
+      templateUrl: 'display.html'
     })
     .when('/save', {
       controller: 'SaveController',
@@ -15,7 +15,7 @@ bookmarkApp.config(function($routeProvider) {
     .otherwise({ redirectTo: '/' });
 });
 
-bookmarkApp.controller('MainController', function($scope, $http) {
+bookmarkApp.controller('DisplayController', function($scope, $http) {
   $scope.test = 'Hi Bookmark App';
   $http.get("/bookmarks")
     .then(function(response) {
