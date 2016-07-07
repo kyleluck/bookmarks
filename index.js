@@ -43,10 +43,10 @@ app.post('/save', function(req, res) {
       return newbookmark.save();
     })
     .then(function() {
-      res.status(200).send({ "status": "ok", "message": "Bookmark saved" });
+      res.status(200).json({ "status": "ok", "message": "Bookmark saved" });
     })
     .catch(function(err) {
-      res.status(400).send({ "status": "fail", "message": "There was an error: " + err.message });
+      res.status(400).json({ "status": "fail", "message": "There was an error: " + err.message });
     });
 });
 
@@ -59,10 +59,22 @@ app.get('/bookmarks', function(req, res) {
         throw new Error("You do not have any saved bookmarks.");
       }
       // we have saved bookmarks
-      res.status(200).send({ "status": "ok", "message": bookmarks });
+      res.status(200).json({ "status": "ok", "message": bookmarks });
     })
     .catch(function(err) {
-      res.status(400).send({ "status": "fail", "message": "There was an error: " + err.message });
+      res.status(400).json({ "status": "fail", "message": "There was an error: " + err.message });
+    });
+});
+
+// delete a bookmarks
+app.post('/delete', function(req, res) {
+  var title = req.body.title;
+  Bookmark.findOne({ title: title }).remove()
+    .then(function() {
+      res.status(200).json({ "status": "ok" });
+    })
+    .catch(function(err) {
+      res.status(400).json({ "status": "fail", "message": "There was an error deleting your bookmark: " + err.message });
     });
 });
 
