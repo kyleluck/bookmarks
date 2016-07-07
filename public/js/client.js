@@ -46,6 +46,27 @@ bookmarkApp.controller('DisplayController', function($scope, $http) {
         alert(err);
       });
   };
+
+  // Attach the saveBookmark function to the scope so that it can be used
+  // when the form is submitted to save a new bookmark.
+  $scope.saveBookmark = function() {
+    $http.post("/save", { "title": $scope.title, "link": $scope.link})
+      .then(function(response) {
+        if (response.data.status === 'ok') {
+          // if we get an ok response from the server, attach the new bookmark to the $scope
+          // in order to update the view
+          console.log(response);
+          var newBookmark = { link: $scope.link, title: $scope.title };
+          $scope.bookmarks.push(newBookmark);
+        } else {
+          throw new Error('Error saving your bookmark.');
+        }
+      })
+      .catch(function(err) {
+        alert(err);
+      });
+  };
+
 }); // end DisplayController
 
 // function to remove the deleted bookmark from the $scope and hence the view
