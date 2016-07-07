@@ -1,3 +1,7 @@
 <h1>{{ test }}</h1>
 
-<a ng-repeat="bookmark in bookmarks" href="{{ bookmark.link }}" target="_blank">{{ bookmark.title }}</a>
+<ul>
+  <li ng-repeat="bookmark in bookmarks">
+    <a href="{{ bookmark.link }}" target="_blank">{{ bookmark.title }}</a>
+  </li>
+</ul>
