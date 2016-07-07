@@ -18,6 +18,9 @@ var Bookmark = mongoose.model('Bookmark', {
 // use body parser with JSON
 app.use(bodyParser.json());
 
+// serve public folder
+app.use(express.static('public'));
+
 // save a bookmark
 app.post('/save', function(req, res) {
   var title = req.body.title;
