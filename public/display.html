@@ -1,12 +1,29 @@
-<form ng-submit="saveBookmark()">
-  <input type="text" placeholder="Enter the bookmark title..." ng-model="title">
-  <input type="url" placeholder="Enter a valid URL" ng-model="link">
+
+<form ng-submit="saveBookmark()" class="saveForm form-inline">
+  <input type="text" placeholder="Enter title" ng-model="title" class="bookmarkInput" required="required">
+  <input type="url" placeholder="Enter a valid URL" ng-model="link" class="bookmarkInput" required="required">
   <button type="submit">Save</button>
 </form>
 
-<ul class="list-group">
-  <li ng-repeat="bookmark in bookmarks" class="list-group-item">
-    <a href="{{ bookmark.link }}" target="_blank">{{ bookmark.title }}</a>
-    <button ng-click="deleteBookmark(bookmark.title)"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
-  </li>
-</ul>
+<div class="table-responsive">
+  <table class="table table-hover table-striped">
+    <thead>
+      <tr>
+        <th>Visits</th>
+        <th>Bookmark</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tr ng-repeat="bookmark in bookmarks">
+      <td>
+        {{ bookmark.hits }}
+      </td>
+      <td>
+        <a href="{{ bookmark.link }}" target="_blank" ng-click="updateHits(bookmark.title)">{{ bookmark.title }}</a>
+      </td>
+      <td>
+        <button ng-click="deleteBookmark(bookmark.title)" class="deleteButton"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></button>
+      </td>
+    </tr>
+  </table>
+</div>

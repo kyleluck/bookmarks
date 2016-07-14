@@ -12,7 +12,8 @@ mongoose.connect('mongodb://localhost/bookmarks');
 // mongodb model for bookmark
 var Bookmark = mongoose.model('Bookmark', {
   title: { type: String, required: true },
-  link: { type: String, required: true }
+  link: { type: String, required: true },
+  hits: { type: Number, default: 0}
 });
 
 // use body parser with JSON
@@ -75,6 +76,23 @@ app.post('/delete', function(req, res) {
     })
     .catch(function(err) {
       res.status(400).json({ "status": "fail", "message": "There was an error deleting your bookmark: " + err.message });
+    });
+});
+
+// update hits for the bookmark
+app.post('/updateHits', function(req, res) {
+  var title = req.body.title;
+  Bookmark.findOne({ title: title })
+    .then(function(bookmark) {
+      bookmark.hits++;
+      return bookmark.save();
+    })
+    .then(function() {
+      res.status(200).json({ "status": "ok" });
+    })
+    .catch(function(err) {
+      // do thing, it's just a hits
+      res.status(400).json({ "status": "fail", "message": "Error updating hits" });
     });
 });
 

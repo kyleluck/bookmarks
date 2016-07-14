@@ -37,7 +37,6 @@ bookmarkApp.controller('DisplayController', function($scope, $http) {
         if (response.data.status === 'ok') {
           // now remove the bookmark from the $scope to update the view
           removeBookmarkFromView(title, $scope.bookmarks);
-          console.log($scope.bookmarks);
         } else {
           throw new Error('Error deleting your bookmark.');
         }
@@ -55,15 +54,35 @@ bookmarkApp.controller('DisplayController', function($scope, $http) {
         if (response.data.status === 'ok') {
           // if we get an ok response from the server, attach the new bookmark to the $scope
           // in order to update the view
-          console.log(response);
-          var newBookmark = { link: $scope.link, title: $scope.title };
+          var newBookmark = { link: $scope.link, title: $scope.title, hits: 0 };
           $scope.bookmarks.push(newBookmark);
+
+          // clear out link and title on the scope so the input fields are ready for a new bookmark
+          $scope.link = '';
+          $scope.title = '';
+
         } else {
           throw new Error('Error saving your bookmark.');
         }
       })
       .catch(function(err) {
-        alert(err);
+        console.log(err);
+      });
+  };
+
+  // when the user clicks a link, update the hit_count in the database
+  $scope.updateHits = function(title) {
+    $http.post("updateHits", { "title": title })
+      .then(function() {
+        // update scope so number of hits displays without refreshing the page
+        return $http.get("/bookmarks");
+      })
+      .then(function(response) {
+        // Attach the booksmarks to the scope so that they can be displayed
+        $scope.bookmarks = response.data.message;
+      })
+      .catch(function(err) {
+        console.log(err);
       });
   };
 
