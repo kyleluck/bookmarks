@@ -1,13 +1,13 @@
 var express = require('express');
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcrypt-as-promised');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var randtoken = require('rand-token');
-
+var credentials = require('./credentials.json');
 var app = express();
 
 // connect to the database
-mongoose.connect('mongodb://localhost/bookmarks');
+mongoose.connect('mongodb://' + credentials.username + ':' + credentials.password + '@ds029051.mlab.com:29051/dc');
 
 // mongodb model for bookmark
 var Bookmark = mongoose.model('Bookmark', {
