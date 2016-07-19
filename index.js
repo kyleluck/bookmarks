@@ -1,8 +1,6 @@
 var express = require('express');
-var bcrypt = require('bcrypt-as-promised');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
-var randtoken = require('rand-token');
 var credentials = require('./credentials.json');
 var app = express();
 
