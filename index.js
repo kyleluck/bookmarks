@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var credentials = require('./credentials.json');
 var app = express();
 
-// connect to the database
+// connect to the database on mlab
 mongoose.connect('mongodb://' + credentials.username + ':' + credentials.password + '@ds029051.mlab.com:29051/dc');
 
 // mongodb model for bookmark
