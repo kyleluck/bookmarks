@@ -2,7 +2,12 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var credentials = require('./credentials.json');
+var bcrypt = require('bcrypt-as-promised');
+var Promise = require('bluebird');
+
 var app = express();
+
+mongoose.Promise = Promise; // use bluebird with mongoose
 
 // connect to the database on mlab
 mongoose.connect('mongodb://' + credentials.username + ':' + credentials.password + '@ds029051.mlab.com:29051/dc');
@@ -91,6 +96,86 @@ app.post('/updateHits', function(req, res) {
     .catch(function(err) {
       // do thing, it's just a hits
       res.status(400).json({ "status": "fail", "message": "Error updating hits" });
+    });
+});
+
+// handle signups
+app.post('/signup', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+  bcrypt.hash(password, 10)
+    .then(function(encryptedPassword) {
+      return [encryptedPassword, User.findOne({ _id: username })];
+    })
+    .spread(function(encryptedPassword, user) {
+      if (!user) {
+        // create user
+        return User.create({
+          _id: username,
+          password: encryptedPassword
+        });
+      } else {
+        // user already exists, throw error with 409 status code
+        var error = new Error("Username is taken!");
+        error.statusCode = 409;
+        throw error;
+      }
+    })
+    .then(function() {
+      //successfully created user, respond with ok
+      res.status(200).json({ "status": "ok" });
+    })
+    .catch(function(err) {
+      if (!err.statusCode) {
+        err.statusCode = 400;
+      }
+      res.status(err.statusCode).json({ "status": "fail", "message": err.message });
+    });
+});
+
+// handle login
+app.post('/login', function(req, res) {
+  var username = req.body.username;
+  var password = req.body.password;
+
+  // find user in database
+  User.findOne({ _id: username })
+    .then(function(user) {
+      // if user isn't found
+      if (!user) {
+        throw new Error("User not found");
+      } else {
+        // compare submitted password with encrypted password in database
+        return [user, bcrypt.compare(password, user.password)];
+      }
+    })
+    .spread(function(user, matched) {
+      // return token in response body
+      if (matched) {
+        var token = randtoken.generate(64);
+        // set token to expire in 10 days and push to authenticationTokens array
+        user.authenticationTokens.push({ token: token, expiration:  Date.now() + 1000 * 60 * 60 * 24 * 10 });
+        // save user's new token
+        /*
+          changing to return user.save() which will go to the next .then()
+          throw error which will be caught by .catch() if incorrect password
+        */
+        return [token, user.save()];
+      } else {
+        // incorrect password, throw error
+        throw new Error("Incorrect password!");
+      }
+    })
+    .spread(function(token) {
+      res.status(200).json({ "status": "ok", "token": token });
+    })
+    .catch(bcrypt.MISMATCH_ERROR, function() {
+      console.log('IN MISMATCH_ERROR catch...');
+      res.status(400).json({ "status": "fail", "message": "Invalid password" });
+    })
+    .catch(function(err) {
+      console.error(err.stack);
+      res.status(400).json({ "status": "fail", "message": err.message });
     });
 });
 

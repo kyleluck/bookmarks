@@ -8,6 +8,14 @@ bookmarkApp.config(function($routeProvider) {
       controller: 'DisplayController',
       templateUrl: 'display.html'
     })
+    .when('/login', {
+      controller: 'LoginController',
+      templateUrl: 'login.html'
+    })
+    .when('/register', {
+      controller: 'RegisterController',
+      templateUrl: 'register.html'
+    })
     .otherwise({ redirectTo: '/' });
 });
 
@@ -95,3 +103,48 @@ function removeBookmarkFromView(title, bookmarks) {
     }
   }
 }
+
+bookmarkApp.controller('LoginController', function($scope, $http, $location, $rootScope, $cookies) {
+  $scope.login = function() {
+    if ($scope.loginForm.$valid) {
+      $http.post(API + '/login', { username: $scope.username, password: $scope.password })
+        .then(function(response) {
+          // if login is a success, redirect
+          if (response.status === 200) {
+            $scope.loginFailed = false;
+            // set a cookie with the token from the database response
+            $cookies.put('token', response.data.token);
+            // redirect to the page they were trying to go to
+            $location.path('/' + $rootScope.goHere);
+          }
+        })
+        .catch(function(err) {
+          // tell user login wasn't successful
+          $scope.loginFailed = true;
+        });
+    }
+  };
+  $scope.registration = function(){
+    $location.path("/register");
+  };
+});
+
+bookmarkApp.controller('RegisterController', function($scope, $location, $http) {
+  $scope.register = function() {
+    $http.post(API + '/signup', { username: $scope.username, password: $scope.password })
+      .then(function(response) {
+        if (response.status === 200) {
+          // user successfully created
+          $scope.registered = true;
+        }
+      })
+      .catch(function(err) {
+        console.log(err);
+      });
+  };
+
+  // if they've registered and clicked the login button, redirect to the login page
+  $scope.redirectToLogin = function() {
+    $location.path('/login');
+  };
+});
