@@ -66,7 +66,7 @@ bookmarkApp.controller('DisplayController', function($scope, $http, $cookies, $t
       // Attach the booksmarks to the scope so that they can be displayed
       $scope.bookmarks = response.data.message;
       // Console the reponse during development
-      console.log(response);
+      // console.log(response);
     });
 
   // Attach the deleteBookmark function to the scope so that it can be used
@@ -108,7 +108,7 @@ bookmarkApp.controller('DisplayController', function($scope, $http, $cookies, $t
         }
       })
       .catch(function(err) {
-        console.log(err);
+        $scope.message = "There was an error: " + err;
       });
   };
 
@@ -124,7 +124,7 @@ bookmarkApp.controller('DisplayController', function($scope, $http, $cookies, $t
         $scope.bookmarks = response.data.message;
       })
       .catch(function(err) {
-        console.log(err);
+        $scope.message = "There was an error: " + err;
       });
   };
 

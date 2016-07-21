@@ -181,11 +181,9 @@ app.post('/login', function(req, res) {
       res.status(200).json({ "status": "ok", "token": token });
     })
     .catch(bcrypt.MISMATCH_ERROR, function() {
-      console.log('IN MISMATCH_ERROR catch...');
       res.status(400).json({ "status": "fail", "message": "Invalid password" });
     })
     .catch(function(err) {
-      console.error(err.stack);
       res.status(400).json({ "status": "fail", "message": err.message });
     });
 });
