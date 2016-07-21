@@ -8,10 +8,6 @@ bookmarkApp.config(function($routeProvider) {
       controller: 'DisplayController',
       templateUrl: 'display.html'
     })
-    .when('/save', {
-      controller: 'SaveController',
-      templateUrl: 'save.html'
-    })
     .otherwise({ redirectTo: '/' });
 });
 
