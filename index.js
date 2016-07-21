@@ -127,6 +127,8 @@ app.post('/signup', function(req, res) {
             _id: username,
             password: encryptedPassword
           });
+        } else {
+          res.status(409).json({ "status": "fail", "message": "User already exists!" });
         }
       })
       .then(function() {

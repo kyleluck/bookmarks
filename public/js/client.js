@@ -182,6 +182,9 @@ bookmarkApp.controller('RegisterController', function($scope, $location, $http, 
           $timeout(function() {
             $location.path("/login");
           }, 3000); // delay 1000 ms
+        } else {
+          $scope.registered = false;
+          $scope.message = "Username taken. Please select a different username.";
         }
       })
       .catch(function(err) {
