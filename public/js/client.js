@@ -1,10 +1,13 @@
 // Define the app module with ngRoute dependency
-var bookmarkApp = angular.module('bookmarkApp', ['ngRoute']);
+var bookmarkApp = angular.module('bookmarkApp', ['ngRoute', 'ngCookies']);
+
+// store host in variable. will be changing to hosting externally
+var API = "http://localhost:8000";
 
 // Configure route provider
 bookmarkApp.config(function($routeProvider) {
   $routeProvider
-    .when('/', {
+    .when('/home', {
       controller: 'DisplayController',
       templateUrl: 'display.html'
     })
@@ -16,14 +19,49 @@ bookmarkApp.config(function($routeProvider) {
       controller: 'RegisterController',
       templateUrl: 'register.html'
     })
-    .otherwise({ redirectTo: '/' });
+    .otherwise({ redirectTo: '/home' });
+});
+
+bookmarkApp.run(function($rootScope, $location, $cookies) {
+  // on every location change start, see where the user is attempting to go
+  $rootScope.$on('$locationChangeStart', function(event, nextUrl, currentUrl) {
+    // get path from url
+    var path = nextUrl.split('/')[4];
+    // if user is going to a restricted area and doesn't have a token stored in a cookie, redirect to the login page
+    var token = $cookies.get('token');
+    if (!token && path === 'home') {
+      $location.path('/login');
+    }
+
+    // is the user logged in? used to display login, logout and signup links
+    $rootScope.isLoggedIn = function() {
+      $rootScope.user = $cookies.get('user');
+      return $cookies.get('token');
+    };
+
+    $rootScope.logout = function() {
+      $cookies.remove('token');
+      $location.path('/login');
+    };
+  });
 });
 
 // Controller for handling displaying of the bookmarks and associated functions
-bookmarkApp.controller('DisplayController', function($scope, $http) {
+bookmarkApp.controller('DisplayController', function($scope, $http, $cookies, $timeout, $location) {
+
+  var user;
+  //check if user logged in. store username in a variable from the user cookie
+  if ($cookies.get('token') && $cookies.get('user')) {
+    user = $cookies.get('user');
+  } else {
+    $scope.message = 'Your session has expired, please login. Redirecting to login page...';
+    $timeout(function() {
+      $location.path("/login");
+    }, 3000); // delay 1000 ms
+  }
 
   // When the user lands on the display page, '/', request the saved bookmarks from the server
-  $http.get("/bookmarks")
+  $http.post("/bookmarks", { user: user })
     .then(function(response) {
       // Attach the booksmarks to the scope so that they can be displayed
       $scope.bookmarks = response.data.message;
@@ -35,7 +73,7 @@ bookmarkApp.controller('DisplayController', function($scope, $http) {
   // with ng-click. This function will delete the bookmark when the user
   // clicks on the trash icon
   $scope.deleteBookmark = function(title) {
-    $http.post("/delete", { "title": title })
+    $http.post("/delete", { "title": title, "user": user })
       .then(function(response) {
         // if response.data.status is ok, we've deleted the bookmark
         if (response.data.status === 'ok') {
@@ -53,12 +91,12 @@ bookmarkApp.controller('DisplayController', function($scope, $http) {
   // Attach the saveBookmark function to the scope so that it can be used
   // when the form is submitted to save a new bookmark.
   $scope.saveBookmark = function() {
-    $http.post("/save", { "title": $scope.title, "link": $scope.link})
+    $http.post("/save", { "title": $scope.title, "link": $scope.link, "user": user })
       .then(function(response) {
         if (response.data.status === 'ok') {
           // if we get an ok response from the server, attach the new bookmark to the $scope
           // in order to update the view
-          var newBookmark = { link: $scope.link, title: $scope.title, hits: 0 };
+          var newBookmark = { link: $scope.link, title: $scope.title, hits: 0, user: $cookies.get('user') };
           $scope.bookmarks.push(newBookmark);
 
           // clear out link and title on the scope so the input fields are ready for a new bookmark
@@ -76,10 +114,10 @@ bookmarkApp.controller('DisplayController', function($scope, $http) {
 
   // when the user clicks a link, update the hit_count in the database
   $scope.updateHits = function(title) {
-    $http.post("updateHits", { "title": title })
+    $http.post("updateHits", { "title": title, "user": $cookies.get('user') })
       .then(function() {
         // update scope so number of hits displays without refreshing the page
-        return $http.get("/bookmarks");
+        return $http.post("/bookmarks", { user: user });
       })
       .then(function(response) {
         // Attach the booksmarks to the scope so that they can be displayed
@@ -114,6 +152,8 @@ bookmarkApp.controller('LoginController', function($scope, $http, $location, $ro
             $scope.loginFailed = false;
             // set a cookie with the token from the database response
             $cookies.put('token', response.data.token);
+            // set a cookie with user's username
+            $cookies.put('user', $scope.username);
             // redirect to the page they were trying to go to
             $location.path('/' + $rootScope.goHere);
           }
@@ -129,22 +169,23 @@ bookmarkApp.controller('LoginController', function($scope, $http, $location, $ro
   };
 });
 
-bookmarkApp.controller('RegisterController', function($scope, $location, $http) {
+bookmarkApp.controller('RegisterController', function($scope, $location, $http, $timeout) {
   $scope.register = function() {
     $http.post(API + '/signup', { username: $scope.username, password: $scope.password })
       .then(function(response) {
         if (response.status === 200) {
           // user successfully created
           $scope.registered = true;
+          // if they've registered successfully, redirect to the login page
+          $timeout(function() {
+            $location.path("/login");
+          }, 3000); // delay 1000 ms
         }
       })
       .catch(function(err) {
-        console.log(err);
+        // there was an error, so let's display it to the end user
+        $scope.message = "There was an error: " + err.data.message;
+        $scope.registered = false;
       });
-  };
-
-  // if they've registered and clicked the login button, redirect to the login page
-  $scope.redirectToLogin = function() {
-    $location.path('/login');
   };
 });

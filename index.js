@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var credentials = require('./credentials.json');
 var bcrypt = require('bcrypt-as-promised');
+var randtoken = require('rand-token');
 var Promise = require('bluebird');
 
 var app = express();
@@ -16,7 +17,15 @@ mongoose.connect('mongodb://' + credentials.username + ':' + credentials.passwor
 var Bookmark = mongoose.model('Bookmark', {
   title: { type: String, required: true },
   link: { type: String, required: true },
-  hits: { type: Number, default: 0}
+  hits: { type: Number, default: 0 },
+  user: { type: String, required: true }
+});
+
+// mongodb model for users
+var User = mongoose.model('User', {
+  _id: { type: String, required: true },
+  password: { type: String, required: true },
+  authenticationTokens: [{ token: String, expiration: Date }],
 });
 
 // use body parser with JSON
@@ -29,9 +38,10 @@ app.use(express.static('public'));
 app.post('/save', function(req, res) {
   var title = req.body.title;
   var link = req.body.link;
+  var user = req.body.user;
 
   // see if bookmark exists by link
-  Bookmark.findOne({ link: link })
+  Bookmark.findOne({ link: link, user: user })
     .then(function(bookmark) {
       if (bookmark) {
         //we've found a duplicate, throw error
@@ -40,7 +50,8 @@ app.post('/save', function(req, res) {
       // no duplicate found, save the new bookmark
       var newbookmark = new Bookmark({
         title: title,
-        link: link
+        link: link,
+        user: user
       });
 
       // save the new bookmark to the database
@@ -55,8 +66,8 @@ app.post('/save', function(req, res) {
 });
 
 // view saved bookmarks
-app.get('/bookmarks', function(req, res) {
-  Bookmark.find({})
+app.post('/bookmarks', function(req, res) {
+  Bookmark.find({ user: req.body.user })
     .then(function(bookmarks) {
       if (!bookmarks) {
         //no bookmarks saved

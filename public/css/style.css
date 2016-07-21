@@ -9,3 +9,9 @@
 .bookmarkInput {
   padding: 10px;
 }
+
+.nav {
+  display: flex;
+  align-items: center;
+  float: right;
+}
