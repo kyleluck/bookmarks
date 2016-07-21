@@ -156,6 +156,8 @@ bookmarkApp.controller('LoginController', function($scope, $http, $location, $ro
             $cookies.put('user', $scope.username);
             // redirect to the page they were trying to go to
             $location.path('/' + $rootScope.goHere);
+          } else {
+            $scope.loginFailed = true;
           }
         })
         .catch(function(err) {

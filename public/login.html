@@ -7,4 +7,7 @@
     <input type="password" placeholder="Password" ng-model="password" class="bookmarkInput" required="required">
   </div>
   <button type="submit">Login</button>
+  <div><p ng-show="loginFailed">Incorrect username or password. Please try again.</p></div>
+  <br>
+  <p>Don't have an account? <button ng-click="registration()">Register</button></p>
 </form>
