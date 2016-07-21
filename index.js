@@ -40,7 +40,7 @@ app.post('/save', function(req, res) {
   var link = req.body.link;
   var user = req.body.user;
 
-  // see if bookmark exists by link
+  // see if bookmark exists by link and user
   Bookmark.findOne({ link: link, user: user })
     .then(function(bookmark) {
       if (bookmark) {
@@ -98,6 +98,7 @@ app.post('/updateHits', function(req, res) {
   var title = req.body.title;
   Bookmark.findOne({ title: title })
     .then(function(bookmark) {
+      // increment hits and save the bookmark with new hit count
       bookmark.hits++;
       return bookmark.save();
     })
@@ -105,7 +106,6 @@ app.post('/updateHits', function(req, res) {
       res.status(200).json({ "status": "ok" });
     })
     .catch(function(err) {
-      // do thing, it's just a hits
       res.status(400).json({ "status": "fail", "message": "Error updating hits" });
     });
 });
@@ -114,6 +114,8 @@ app.post('/updateHits', function(req, res) {
 app.post('/signup', function(req, res) {
   var username = req.body.username;
   var password = req.body.password;
+
+  // has the password, create the user if the username doesn't already exist
   bcrypt.hash(password, 10)
     .then(function(encryptedPassword) {
       return [encryptedPassword, User.findOne({ _id: username })];

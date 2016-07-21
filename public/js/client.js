@@ -1,8 +1,8 @@
 // Define the app module with ngRoute dependency
 var bookmarkApp = angular.module('bookmarkApp', ['ngRoute', 'ngCookies']);
 
-// store host in variable. will be changing to hosting externally
-var API = "http://localhost:8000";
+// API set to the empty string as Express will serve public folder
+var API = "";
 
 // Configure route provider
 bookmarkApp.config(function($routeProvider) {

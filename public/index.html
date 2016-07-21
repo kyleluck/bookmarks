@@ -14,6 +14,7 @@
     <div class="container">
       <div class="row">
         <div class="col col-xs-12">
+          <!-- show who the user is logged in as and a logout button, if the user is logged in -->
           <div class="nav">
             <span style="float:right; margin-right:10px;" ng-show="isLoggedIn()">Logged in as {{ user }}</span>
             <button class="btn" ng-show="isLoggedIn()" ng-click="logout()" style="float:right;">Logout</button>
@@ -29,7 +30,6 @@
 
 
     <!-- include angular scripts and client side script -->
-    <!-- <script src="js/angular.js"></script> -->
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
     <script src="js/angular-cookies.js"></script>
     <script src="js/angular-route.js"></script>
