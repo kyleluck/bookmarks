@@ -7,7 +7,8 @@
     <input type="password" placeholder="Password" ng-model="password" class="bookmarkInput" required="required">
   </div>
   <button type="submit">Login</button>
-  <div><p ng-show="loginFailed">Incorrect username or password. Please try again.</p></div>
+  <div><p ng-show="loginSuccess">Connected to Mongodb: Login successful. Redirecting...</p></div>
+  <div><p ng-show="loginFailed">Connected to Mongodb: Incorrect username or password. Please try again.</p></div>
   <br>
   <p>Don't have an account? <button ng-click="registration()">Register</button></p>
 </form>

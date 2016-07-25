@@ -63,6 +63,7 @@ bookmarkApp.controller('DisplayController', function($scope, $http, $cookies, $t
   // When the user lands on the display page, '/', request the saved bookmarks from the server
   $http.post("/bookmarks", { user: user })
     .then(function(response) {
+      $scope.connectedMessage = true;
       // Attach the booksmarks to the scope so that they can be displayed
       $scope.bookmarks = response.data.message;
       // Console the reponse during development
@@ -142,7 +143,7 @@ function removeBookmarkFromView(title, bookmarks) {
   }
 }
 
-bookmarkApp.controller('LoginController', function($scope, $http, $location, $rootScope, $cookies) {
+bookmarkApp.controller('LoginController', function($scope, $http, $location, $rootScope, $cookies, $timeout) {
   $scope.login = function() {
     if ($scope.loginForm.$valid) {
       $http.post(API + '/login', { username: $scope.username, password: $scope.password })
@@ -154,8 +155,12 @@ bookmarkApp.controller('LoginController', function($scope, $http, $location, $ro
             $cookies.put('token', response.data.token);
             // set a cookie with user's username
             $cookies.put('user', $scope.username);
+
+            $scope.loginSuccess = true;
             // redirect to the page they were trying to go to
-            $location.path('/' + $rootScope.goHere);
+            $timeout(function() {
+              $location.path('/' + $rootScope.goHere);
+            }, 3000); // delay 1000 ms
           } else {
             $scope.loginFailed = true;
           }
@@ -181,7 +186,7 @@ bookmarkApp.controller('RegisterController', function($scope, $location, $http, 
           // if they've registered successfully, redirect to the login page
           $timeout(function() {
             $location.path("/login");
-          }, 3000); // delay 1000 ms
+          }, 3000); // delay 3000 ms
         } else {
           $scope.registered = false;
           $scope.message = "Username taken. Please select a different username.";
